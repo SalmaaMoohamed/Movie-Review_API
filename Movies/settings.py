@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'Accounts',
     'Movies',  # Assuming 'Movies' is the main app for the project
     'django_filters',  # For filtering functionality
-
 ]
 
 MIDDLEWARE = [
