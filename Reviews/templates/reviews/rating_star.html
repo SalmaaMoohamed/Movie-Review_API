@@ -1,0 +1,16 @@
+<!-- reviews/templates/reviews/rating_star.html -->
+<span class="rating" title="{{ value }}/5">
+  {% for i in "12345" %}
+    {% if forloop.counter <= value|default:0 %}
+      <span class="star filled">&#9733;</span>
+    {% else %}
+      <span class="star">&#9734;</span>
+    {% endif %}
+  {% endfor %}
+</span>
+
+<style>
+  .rating { font-family: Arial; color: #f5c518; }
+  .star { color: #f5c518; }
+  .star.filled { color: #ffd700; }
+</style>
