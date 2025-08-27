@@ -1,0 +1,42 @@
+<!-- reviews/templates/reviews/list.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+  <h1>Reviews</h1>
+
+  <!-- Filter by movie -->
+  <form method="get" class="filters" action=".">
+    <label for="movie_filter">Filter by Movie:</label>
+    <select name="movie_id" id="movie_filter" onchange="this.form.submit()">
+      <option value="">All Movies</option>
+      {% for movie in movies %}
+        <option value="{{ movie.id }}" {% if request.GET.movie_id|default:''|int == movie.id %}selected{% endif %}>
+          {{ movie.title }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <ul class="review-list">
+    {% for review in reviews %}
+      <li class="review-item">
+        <h3>
+          <a href="{% url 'reviews:detail' review.pk %}">{{ review.title }}</a>
+        </h3>
+        <p class="review-meta">
+          Movie: <strong>{{ review.movie.title }}</strong> • by {{ review.user.username }} • on {{ review.created_at|date:"Y-m-d" }}
+        </p>
+        <p class="review-content">{{ review.content|truncatewords:40 }}</p>
+        <!-- star rating -->
+        {% include "reviews/rating_star.html" with value=review.rating %}
+        <div class="review-actions">
+          <span>{{ review.likes.count }} likes</span>
+          <span>{{ review.flags.count }} flags</span>
+        </div>
+      </li>
+    {% empty %}
+      <li>No reviews yet.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
