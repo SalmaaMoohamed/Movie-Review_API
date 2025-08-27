@@ -1,0 +1,12 @@
+<!-- reviews/templates/reviews/movie_item.html -->
+<div class="movie-item">
+  <h4 class="movie-title">{{ movie.title }}</h4>
+  <p class="movie-genres">
+    {% for genre in movie.genres.all %}
+      {{ genre.name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  </p>
+  {% if movie.release_date %}
+  <p class="movie-date">Released: {{ movie.release_date }}</p>
+  {% endif %}
+</div>
