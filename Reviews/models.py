@@ -1,18 +1,10 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from django.contrib.auth.models import User
-from .models import Movie
-from .models import Review
-from .models import Genre
-
-
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 # Create your models here.
-
-
-
-
 
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -24,7 +16,6 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class Movie(models.Model):
     title = models.CharField(max_length=200)
@@ -42,7 +33,7 @@ class Movie(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.year or 'N/A'})"
-    
+
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
@@ -60,7 +51,7 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user.username} for {self.movie.title}"
-    
+
 
 class ReviewFlag(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="flags")
@@ -74,7 +65,7 @@ class ReviewFlag(models.Model):
 
     def __str__(self):
         return f"Flag on {self.review.id} by {self.reporter.username}"
-    
+
 class ReviewLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="review_likes")
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="likes")
