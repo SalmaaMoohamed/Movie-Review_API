@@ -1,18 +1,42 @@
 from django.db import models
-from .models import Genre
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-
+from .models import User
+from django.contrib.auth.models import User
+from .models import Movie
+from .models import Review
+from .models import Genre
 
 
 
 # Create your models here.
 
+class User(models.Model):
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+        ordering = ["username"]
+
+    def __str__(self):
+        return self.username
+
+
+
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
+    class Meta:
+        verbose_name = "Genre"
+        verbose_name_plural = "Genres"
+        ordering = ["name"]
+
     def __str__(self):
         return self.name
+
 
 class Movie(models.Model):
     title = models.CharField(max_length=200)
