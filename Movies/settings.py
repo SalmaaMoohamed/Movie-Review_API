@@ -42,10 +42,11 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'Reviews',
     'Accounts',
-    'Movies',  # Assuming 'Movies' is the main app for the project
     'django_filters',  # For filtering functionality
     
 ]
+
+AUTH_USER_MODEL = 'Accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
