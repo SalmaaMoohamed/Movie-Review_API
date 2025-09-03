@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ review.movie.title }} Review{% endblock %}
+
+{% block extra_css %}
+<style>
+    .review-detail-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow-hover);
+        overflow: hidden;
+    }
+
+    .movie-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: var(--text-light);
+        padding: 3rem 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .movie-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="cinema" width="30" height="30" patternUnits="userSpaceOnUse"><rect x="10" y="10" width="4" height="4" fill="white" opacity="0.1"/><rect x="20" y="20" width="4" height="4" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23cinema)"/></svg>');
+    }
+
+    .movie-header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .movie-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .movie-year {
+        font-size: 1.2rem;
+        opacity: 0.8;
+        margin-bottom: 1rem;
+    }
+
+    .movie-genre {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+
+    .review-content {
+        padding: 2rem;
+    }
+
+    .review-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .reviewer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .reviewer-details h4 {
+        margin: 0;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .reviewer-details p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .review-rating-section {
+        text-align: center;
+    }
+
+    .rating-display {
+        display: flex;
+        gap: 3px;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .star-large {
+        color: #ffd700;
+        font-size: 1.8rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .star-large.empty {
+        color: #ddd;
+    }
+
+    .rating-text {
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .review-title-section {
+        margin-bottom: 2rem;
+    }
+
+    .review-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .review-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: var(--text-dark);
+        text-align: justify;
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid var(--accent-color);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-back {
+        background: #6c757d;
+        color: var(--text-light);
+    }
+
+    .btn-back:hover {
+        background: #545b62;
+        color: var(--text-light);
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .btn-edit-review {
+        background: var(--accent-color);
+        color: var(--text-light);
+    }
+
+    .btn-edit-review:hover {
+        background: #d63447;
+        color: var(--text-light);
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .movie-synopsis {
+        background: #e7f3ff;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #007bff;
+    }
+
+    .synopsis-title {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .synopsis-text {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .review-detail-container {
+            margin: 1rem;
+        }
+
+        .movie-title {
+            font-size: 2rem;
+        }
+
+        .review-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .movie-header {
+            padding: 2rem 1rem;
+        }
+
+        .review-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="review-detail-container fade-in">
+    <div class="movie-header">
+        <div class="movie-header-content">
+            <h1 class="movie-title">{{ review.movie.title }}</h1>
+            {% if review.movie.year %}
+                <p class="movie-year">({{ review.movie.year }})</p>
+            {% endif %}
+            {% if review.movie.genre %}
+                <span class="movie-genre">{{ review.movie.genre.name }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="review-content">
+        {% if review.movie.synopsis %}
+            <div class="movie-synopsis">
+                <h3 class="synopsis-title">📖 Movie Synopsis</h3>
+                <p class="synopsis-text">{{ review.movie.synopsis }}</p>
+            </div>
+        {% endif %}
+
+        <div class="review-meta">
+            <div class="reviewer-info">
+                <div class="reviewer-avatar">
+                    {{ review.user.first_name.0|default:review.user.username.0|upper }}
+                </div>
+                <div class="reviewer-details">
+                    <h4>{{ review.user.first_name|default:review.user.username }}</h4>
+                    <p>Reviewed on {{ review.created_at|date:"F d, Y" }}</p>
+                </div>
+            </div>
+
+            <div class="review-rating-section">
+                <div class="rating-display">
+                    {% for i in "12345" %}
+                        <span class="star-large {% if forloop.counter > review.rating %}empty{% endif %}">★</span>
+                    {% endfor %}
+                </div>
+                <p class="rating-text">{{ review.rating }}/5 Stars</p>
+            </div>
+        </div>
+
+        {% if review.title %}
+            <div class="review-title-section">
+                <h2 class="review-title">"{{ review.title }}"</h2>
+            </div>
+        {% endif %}
+
+        {% if review.content %}
+            <div class="review-text">
+                {{ review.content|linebreaks }}
+            </div>
+        {% endif %}
+
+        <div class="action-buttons">
+            <a href="{% url 'reviews:list' %}" class="btn-action btn-back">
+                <span>←</span>
+                Back to Reviews
+            </a>
+            {% if user == review.user %}
+                <a href="{% url 'reviews:update' review.pk %}" class="btn-action btn-edit-review">
+                    <span>✏️</span>
+                    Edit Review
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

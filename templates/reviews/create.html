@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+
+{% block title %}Write Review - Movie Review API{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-hover);
+        border: 1px solid var(--border-color);
+    }
+
+    .create-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .create-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .create-subtitle {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafafa;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+    }
+
+    .form-control.textarea {
+        min-height: 150px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.6;
+    }
+
+    .rating-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .rating-label {
+        display: block;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .rating-stars {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .rating-star {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+    }
+
+    .rating-star:hover,
+    .rating-star.active {
+        color: #ffd700;
+        transform: scale(1.1);
+    }
+
+    .rating-star:hover ~ .rating-star {
+        color: #ddd;
+    }
+
+    .rating-text {
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-submit {
+        background: var(--accent-color);
+        color: var(--text-light);
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: #d63447;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3);
+    }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: var(--text-light);
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: #545b62;
+        color: var(--text-light);
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .error-list {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--error-color);
+    }
+
+    .create-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.25rem;
+        line-height: 1.4;
+    }
+
+    .character-count {
+        text-align: right;
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    .form-tips {
+        background: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-tips h4 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .form-tips ul {
+        margin: 0;
+        padding-left: 1.2rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .form-tips li {
+        margin-bottom: 0.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .create-container {
+            margin: 1rem;
+            padding: 2rem 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .create-title {
+            font-size: 1.8rem;
+        }
+
+        .movie-title {
+            font-size: 2rem;
+        }
+
+        .rating-stars {
+            gap: 0.25rem;
+        }
+
+        .rating-star {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-container fade-in">
+    <div class="create-header">
+        <span class="create-icon">✍️</span>
+        <h1 class="create-title">Write a Review</h1>
+        <p class="create-subtitle">Share your thoughts about a movie</p>
+    </div>
+
+    <div class="form-tips">
+        <h4>💡 Writing Tips</h4>
+        <ul>
+            <li>Be honest and specific about what you liked or disliked</li>
+            <li>Avoid major spoilers in your review</li>
+            <li>Consider plot, acting, direction, and cinematography</li>
+            <li>Help others decide if they should watch this movie</li>
+        </ul>
+    </div>
+
+    {% if form.errors %}
+        <div class="error-list">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" novalidate id="reviewForm">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.movie.id_for_label }}" class="form-label">
+                {{ form.movie.label }}
+            </label>
+            {{ form.movie }}
+        </div>
+
+        <div class="rating-group">
+            <label class="rating-label">Rating</label>
+            <div class="rating-stars" id="ratingStars">
+                {% for i in "12345" %}
+                    <span class="rating-star" data-rating="{{ forloop.counter }}">★</span>
+                {% endfor %}
+            </div>
+            <div class="rating-text" id="ratingText">Click to rate</div>
+            {{ form.rating }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}" class="form-label">
+                {{ form.title.label }} (Optional)
+            </label>
+            {{ form.title }}
+            <div class="help-text">Give your review a catchy title</div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}" class="form-label">
+                {{ form.content.label }} (Optional)
+            </label>
+            {{ form.content }}
+            <div class="character-count" id="charCount">0 characters</div>
+            <div class="help-text">Share your detailed thoughts about the movie</div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">
+                🎬 Publish Review
+            </button>
+            <a href="{% url 'reviews:list' %}" class="btn-cancel">
+                ❌ Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Rating stars functionality
+    const stars = document.querySelectorAll('.rating-star');
+    const ratingInput = document.getElementById('{{ form.rating.id_for_label }}');
+    const ratingText = document.getElementById('ratingText');
+    
+    const ratingLabels = {
+        1: 'Poor - Not worth watching',
+        2: 'Fair - Has some issues',
+        3: 'Good - Worth watching',
+        4: 'Very Good - Highly recommended',
+        5: 'Excellent - Must watch!'
+    };
+
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const rating = this.dataset.rating;
+            ratingInput.value = rating;
+            updateStars(rating);
+            ratingText.textContent = ratingLabels[rating];
+        });
+
+        star.addEventListener('mouseenter', function() {
+            const rating = this.dataset.rating;
+            updateStars(rating);
+            ratingText.textContent = ratingLabels[rating];
+        });
+    });
+
+    document.getElementById('ratingStars').addEventListener('mouseleave', function() {
+        const currentRating = ratingInput.value;
+        if (currentRating) {
+            updateStars(currentRating);
+            ratingText.textContent = ratingLabels[currentRating];
+        } else {
+            updateStars(0);
+            ratingText.textContent = 'Click to rate';
+        }
+    });
+
+    function updateStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    // Character count for content
+    const contentTextarea = document.getElementById('{{ form.content.id_for_label }}');
+    const charCount = document.getElementById('charCount');
+
+    if (contentTextarea && charCount) {
+        contentTextarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = `${count} characters`;
+        });
+    }
+
+    // Initialize with existing values if editing
+    const initialRating = ratingInput.value;
+    if (initialRating) {
+        updateStars(initialRating);
+        ratingText.textContent = ratingLabels[initialRating];
+    }
+
+    // Initialize character count
+    if (contentTextarea) {
+        const initialCount = contentTextarea.value.length;
+        charCount.textContent = `${initialCount} characters`;
+    }
+});
+</script>
+{% endblock %}

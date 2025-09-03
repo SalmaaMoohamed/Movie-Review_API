@@ -6,12 +6,28 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, Pass
 
 
 class SimpleProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'id': f'id_{field_name}'
+            })
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'id': f'id_{field_name}'
+            })
 
     class Meta:
         model = User
@@ -27,6 +43,14 @@ class CustomUserCreationForm(UserCreationForm):
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(label="Username or Email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'id': f'id_{field_name}'
+            })
 
     def clean(self):
         username_or_email = self.cleaned_data.get('username')
@@ -47,20 +71,15 @@ class CustomAuthenticationForm(AuthenticationForm):
         return super().clean()
     
 class CustomPasswordChangeForm(PasswordChangeForm):
-    password = forms.CharField(widget=forms.PasswordInput)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['old_password'].widget = forms.PasswordInput(
-            attrs={'class': 'form-control', 'placeholder': 'Old password'}
-        )
-        self.fields['new_password1'].widget = forms.PasswordInput(
-            attrs={'class': 'form-control', 'placeholder': 'New password'}
-        )
-        self.fields['new_password2'].widget = forms.PasswordInput(
-            attrs={'class': 'form-control', 'placeholder': 'Confirm new password'}
-        )
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'id': f'id_{field_name}'
+            })
 
         self.fields['old_password'].label = "Current password"
         self.fields['new_password1'].label = "New password"

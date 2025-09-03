@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django import forms
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, SimpleProfileForm, CustomPasswordChangeForm
+from django.contrib import messages
 
 # Create your views here.
 
@@ -16,7 +18,7 @@ def login_view(request):
         return redirect('accounts:profile')
 
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             
             username = form.cleaned_data.get('username')
@@ -24,10 +26,11 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                messages.success(request, f'Welcome back, {user.first_name or user.username}!')
                 next_url = request.GET.get('next')
                 return redirect(next_url or reverse('accounts:profile'))
     else:
-        form = AuthenticationForm()
+        form = CustomAuthenticationForm()
 
     return render(request, 'accounts/login.html', {'form': form})
 
@@ -37,14 +40,15 @@ def register_view(request):
         return redirect('accounts:profile')
 
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             
             login(request, user)
+            messages.success(request, f'Welcome to Movie Reviews, {user.username}!')
             return redirect('accounts:profile')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'accounts/register.html', {'form': form})
 
@@ -54,10 +58,6 @@ def profile_view(request):
     return render(request, 'accounts/profile.html', {'user': request.user})
 
 
-class SimpleProfileForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email']
 
 @login_required
 def edit_profile_view(request):
@@ -66,6 +66,7 @@ def edit_profile_view(request):
         form = SimpleProfileForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
             return redirect('accounts:profile')
     else:
         form = SimpleProfileForm(instance=user)
@@ -76,19 +77,21 @@ def edit_profile_view(request):
 @login_required
 def password_change_view(request):
     if request.method == 'POST':
-        form = PasswordChangeForm(user=request.user, data=request.POST)
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             form.save()
             
             from django.contrib.auth import update_session_auth_hash
             update_session_auth_hash(request, form.user)
+            messages.success(request, 'Your password has been changed successfully!')
             return redirect('accounts:profile')
     else:
-        form = PasswordChangeForm(user=request.user)
+        form = CustomPasswordChangeForm(user=request.user)
 
     return render(request, 'accounts/password_change.html', {'form': form})
 
 
 def logout_view(request):
     logout(request)
+    messages.info(request, 'You have been logged out successfully.')
     return redirect('accounts:login')

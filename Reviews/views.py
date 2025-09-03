@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from .models import Review
 from .serializers import ReviewSerializer
+from django.contrib import messages
+from django.db.models import Q
 
 
 # Create your views here.
@@ -19,36 +21,40 @@ class ReviewListView(ListView):
     model = Review
     template_name = "reviews/list.html"
     context_object_name = "reviews"
+    paginate_by = 12
 
-    #def get_queryset(self):
-        #qs = super().get_queryset().select_related("user", "movie")
-        #movie_id = self.request.GET.get("movie_id")
-        #if movie_id:
-            #qs = qs.filter(movie_id=movie_id)
-        #return qs
-
-def review_list(request):
-    qs = Review.objects.all()
-    q = request.GET.get('q', '')
-    min_rate = request.GET.get('min_rate')
-    max_rate = request.GET.get('max_rate')
-
-    if q:
-        qs = qs.filter(movie_title__icontains=q)
-    if min_rate:
-        qs = qs.filter(rating__gte=min_rate)
-    if max_rate:
-        qs = qs.filter(rating__lte=max_rate)
-
-    return render(request, 'reviews/list.html', {'reviews': qs, 'q': q, 'min_rate': min_rate, 'max_rate': max_rate})
-
-def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_queryset(self):
+        qs = super().get_queryset().select_related("user", "movie", "movie__genre")
         
-        context["movies"] = Movie.objects.all()
+        # Search functionality
+        q = self.request.GET.get('q')
+        if q:
+            qs = qs.filter(
+                Q(movie__title__icontains=q) |
+                Q(title__icontains=q) |
+                Q(content__icontains=q)
+            )
+        
+        # Rating filters
+        min_rate = self.request.GET.get('min_rate')
+        if min_rate:
+            qs = qs.filter(rating__gte=min_rate)
+            
+        max_rate = self.request.GET.get('max_rate')
+        if max_rate:
+            qs = qs.filter(rating__lte=max_rate)
+            
+        # User filter
+        user = self.request.GET.get('user')
+        if user:
+            qs = qs.filter(user__username=user)
+        
+        return qs.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["movies"] = Movie.objects.all().order_by('title')
         return context
-    
-    
 
 
 class ReviewDetailView(DetailView):
@@ -64,7 +70,9 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        messages.success(self.request, f'Your review for "{self.object.movie.title}" has been published!')
+        return response
 
     def get_success_url(self):
         return reverse_lazy("reviews:detail", kwargs={"pk": self.object.pk})
@@ -74,12 +82,17 @@ class ReviewUpdateView(LoginRequiredMixin, UpdateView):
     model = Review
     form_class = ReviewForm
     template_name = "reviews/update.html"
+    context_object_name = "review"
 
     def get_queryset(self):
         
         qs = super().get_queryset()
         return qs.filter(user=self.request.user)
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Your review for "{self.object.movie.title}" has been updated!')
+        return response
     def get_success_url(self):
         return reverse_lazy("reviews:detail", kwargs={"pk": self.object.pk})
     
