@@ -12,15 +12,15 @@
         }
 
         :root {
-            --primary-color: #1a1a2e;
-            --secondary-color: #16213e;
-            --accent-color: #e94560;
+            --primary-color: #042E58;
+            --secondary-color: #2DE787;
+            --accent-color: #7261DD;
+            --warning-color: #DDB100;
             --text-light: #ffffff;
             --text-dark: #333333;
             --background-light: #f8f9fa;
             --border-color: #dee2e6;
             --success-color: #28a745;
-            --warning-color: #ffc107;
             --error-color: #dc3545;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.2);
@@ -30,7 +30,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: var(--text-dark);
-            background: linear-gradient(135deg, var(--background-light) 0%, #e3f2fd 100%);
+            background: linear-gradient(135deg, var(--background-light) 0%, rgba(45, 231, 135, 0.1) 100%);
             min-height: 100vh;
         }
 
@@ -106,9 +106,9 @@
         }
 
         .nav-links .btn-primary:hover {
-            background: #d63447;
+            background: #5d4bbd;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+            box-shadow: 0 4px 12px rgba(114, 97, 221, 0.3);
         }
 
         /* Mobile Menu */
@@ -156,7 +156,7 @@
         }
 
         .footer a:hover {
-            color: #d63447;
+            color: var(--secondary-color);
             text-decoration: none;
         }
 
@@ -180,7 +180,7 @@
         }
 
         .btn-primary:hover {
-            background: #d63447;
+            background: #5d4bbd;
             color: var(--text-light);
             text-decoration: none;
             transform: translateY(-2px);
@@ -193,7 +193,7 @@
         }
 
         .btn-secondary:hover {
-            background: #0f1729;
+            background: #034a7a;
             color: var(--text-light);
             text-decoration: none;
             transform: translateY(-2px);
@@ -236,8 +236,8 @@
         }
 
         .alert-warning {
-            background: #fff3cd;
-            color: #856404;
+            background: #fff8e1;
+            color: #8a6914;
             border-left-color: var(--warning-color);
         }
 

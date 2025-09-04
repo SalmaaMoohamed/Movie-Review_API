@@ -1,0 +1,142 @@
+{% load static %}
+
+<div class="rating-star-component" data-rating="{{ rating|default:0 }}" data-max-rating="{{ max_rating|default:5 }}">
+    <div class="stars-container">
+        {% for i in "12345" %}
+            <span class="rating-star {% if forloop.counter <= rating %}filled{% else %}empty{% endif %}" 
+                  data-value="{{ forloop.counter }}"
+                  title="{{ forloop.counter }} star{{ forloop.counter|pluralize }}">
+                ★
+            </span>
+        {% endfor %}
+    </div>
+    {% if show_text %}
+        <span class="rating-text">
+            {% if rating %}
+                {{ rating }}/5 Stars
+            {% else %}
+                Not rated
+            {% endif %}
+        </span>
+    {% endif %}
+</div>
+
+<style>
+    .rating-star-component {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stars-container {
+        display: flex;
+        gap: 2px;
+    }
+
+    .rating-star {
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .rating-star.filled {
+        color: #DDB100;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .rating-star.empty {
+        color: #ddd;
+    }
+
+    .rating-star:hover {
+        transform: scale(1.1);
+    }
+
+    .rating-star.interactive:hover {
+        color: #DDB100;
+    }
+
+    .rating-star.interactive:hover ~ .rating-star {
+        color: #ddd;
+    }
+
+    .rating-text {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    /* Size variations */
+    .rating-star-component.small .rating-star {
+        font-size: 1rem;
+    }
+
+    .rating-star-component.large .rating-star {
+        font-size: 1.5rem;
+    }
+
+    .rating-star-component.extra-large .rating-star {
+        font-size: 2rem;
+    }
+
+    /* Interactive mode for forms */
+    .rating-star-component.interactive .rating-star {
+        cursor: pointer;
+    }
+
+    .rating-star-component.interactive .rating-star:hover {
+        color: #DDB100;
+        transform: scale(1.15);
+    }
+
+    /* Read-only mode */
+    .rating-star-component.readonly .rating-star {
+        cursor: default;
+    }
+
+    .rating-star-component.readonly .rating-star:hover {
+        transform: none;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize interactive rating stars
+    document.querySelectorAll('.rating-star-component.interactive').forEach(function(component) {
+        const stars = component.querySelectorAll('.rating-star');
+        const hiddenInput = component.querySelector('input[type="hidden"]');
+        
+        stars.forEach(function(star, index) {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.value);
+                
+                // Update hidden input if exists
+                if (hiddenInput) {
+                    hiddenInput.value = rating;
+                }
+                
+                // Update visual state
+                updateStarDisplay(stars, rating);
+                
+                // Trigger custom event
+                component.dispatchEvent(new CustomEvent('ratingChanged', {
+                    detail: { rating: rating }
+                }));
+            });
+        });
+    });
+    
+    function updateStarDisplay(stars, rating) {
+        stars.forEach(function(star, index) {
+            if (index < rating) {
+                star.classList.remove('empty');
+                star.classList.add('filled');
+            } else {
+                star.classList.remove('filled');
+                star.classList.add('empty');
+            }
+        });
+    }
+});
+</script>

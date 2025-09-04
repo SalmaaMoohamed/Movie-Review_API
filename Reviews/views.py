@@ -3,15 +3,18 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Movie
-from .forms import ReviewForm
+from .models import Movie, Review, Genre
+from .forms import ReviewForm, MovieForm
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from .models import Review
 from .serializers import ReviewSerializer
 from django.contrib import messages
 from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 # Create your views here.
@@ -67,6 +70,43 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
     model = Review
     form_class = ReviewForm
     template_name = "reviews/create.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['movies'] = Movie.objects.all().order_by('title')
+        context['genres'] = Genre.objects.all().order_by('name')
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        # Handle movie creation if needed
+        movie_title = request.POST.get('new_movie_title')
+        movie_year = request.POST.get('new_movie_year')
+        movie_genre_id = request.POST.get('new_movie_genre')
+        movie_synopsis = request.POST.get('new_movie_synopsis')
+        
+        if movie_title and not request.POST.get('movie'):
+            # Create new movie
+            movie_data = {
+                'title': movie_title,
+                'year': movie_year if movie_year else None,
+                'synopsis': movie_synopsis if movie_synopsis else '',
+            }
+            
+            if movie_genre_id:
+                try:
+                    genre = Genre.objects.get(id=movie_genre_id)
+                    movie_data['genre'] = genre
+                except Genre.DoesNotExist:
+                    pass
+            
+            movie = Movie.objects.create(**movie_data)
+            
+            # Update the form data to use the new movie
+            mutable_post = request.POST.copy()
+            mutable_post['movie'] = movie.id
+            request.POST = mutable_post
+        
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.user = self.request.user

@@ -212,6 +212,70 @@
         margin-bottom: 0.25rem;
     }
 
+    .movie-selection {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        border: 2px solid var(--border-color);
+    }
+
+    .movie-selection h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .movie-options {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .option-btn {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--border-color);
+        background: white;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .option-btn.active {
+        background: var(--accent-color);
+        color: var(--text-light);
+        border-color: var(--accent-color);
+    }
+
+    .option-btn:hover {
+        border-color: var(--accent-color);
+    }
+
+    .new-movie-form {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+    }
+
+    .new-movie-form.active {
+        display: block;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+        flex: 1;
+    }
+
     @media (max-width: 768px) {
         .create-container {
             margin: 1rem;
@@ -236,6 +300,14 @@
 
         .rating-star {
             font-size: 1.5rem;
+        }
+
+        .movie-options {
+            flex-direction: column;
+        }
+
+        .form-row {
+            flex-direction: column;
         }
     }
 </style>
@@ -272,11 +344,57 @@
     <form method="post" novalidate id="reviewForm">
         {% csrf_token %}
         
-        <div class="form-group">
-            <label for="{{ form.movie.id_for_label }}" class="form-label">
-                {{ form.movie.label }}
-            </label>
-            {{ form.movie }}
+        <div class="movie-selection">
+            <h3>🎬 Select or Add Movie</h3>
+            <div class="movie-options">
+                <button type="button" class="option-btn active" id="existingMovieBtn">
+                    Select Existing Movie
+                </button>
+                <button type="button" class="option-btn" id="newMovieBtn">
+                    Add New Movie
+                </button>
+            </div>
+            
+            <div id="existingMovieSection">
+                <div class="form-group">
+                    <label for="{{ form.movie.id_for_label }}" class="form-label">
+                        Choose Movie
+                    </label>
+                    {{ form.movie }}
+                </div>
+            </div>
+            
+            <div class="new-movie-form" id="newMovieSection">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Movie Title *</label>
+                        <input type="text" name="new_movie_title" class="form-control" 
+                               placeholder="Enter movie title" id="newMovieTitle">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="number" name="new_movie_year" class="form-control" 
+                               placeholder="2024" min="1888" max="2030" id="newMovieYear">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Genre</label>
+                        <select name="new_movie_genre" class="form-control" id="newMovieGenre">
+                            <option value="">Select genre (optional)</option>
+                            {% for genre in genres %}
+                                <option value="{{ genre.id }}">{{ genre.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Synopsis (Optional)</label>
+                    <textarea name="new_movie_synopsis" class="form-control" 
+                              placeholder="Brief description of the movie..." 
+                              rows="3" id="newMovieSynopsis"></textarea>
+                </div>
+            </div>
         </div>
 
         <div class="rating-group">
@@ -320,6 +438,36 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Movie selection functionality
+    const existingMovieBtn = document.getElementById('existingMovieBtn');
+    const newMovieBtn = document.getElementById('newMovieBtn');
+    const existingMovieSection = document.getElementById('existingMovieSection');
+    const newMovieSection = document.getElementById('newMovieSection');
+    const movieSelect = document.getElementById('{{ form.movie.id_for_label }}');
+
+    existingMovieBtn.addEventListener('click', function() {
+        existingMovieBtn.classList.add('active');
+        newMovieBtn.classList.remove('active');
+        existingMovieSection.style.display = 'block';
+        newMovieSection.classList.remove('active');
+        
+        // Clear new movie form
+        document.getElementById('newMovieTitle').value = '';
+        document.getElementById('newMovieYear').value = '';
+        document.getElementById('newMovieGenre').value = '';
+        document.getElementById('newMovieSynopsis').value = '';
+    });
+
+    newMovieBtn.addEventListener('click', function() {
+        newMovieBtn.classList.add('active');
+        existingMovieBtn.classList.remove('active');
+        existingMovieSection.style.display = 'none';
+        newMovieSection.classList.add('active');
+        
+        // Clear existing movie selection
+        movieSelect.value = '';
+    });
+
     // Rating stars functionality
     const stars = document.querySelectorAll('.rating-star');
     const ratingInput = document.getElementById('{{ form.rating.id_for_label }}');
@@ -392,6 +540,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const initialCount = contentTextarea.value.length;
         charCount.textContent = `${initialCount} characters`;
     }
+
+    // Form validation
+    document.getElementById('reviewForm').addEventListener('submit', function(e) {
+        const movieSelected = movieSelect.value;
+        const newMovieTitle = document.getElementById('newMovieTitle').value;
+        const rating = ratingInput.value;
+        
+        if (!movieSelected && !newMovieTitle.trim()) {
+            e.preventDefault();
+            alert('Please select an existing movie or add a new one.');
+            return;
+        }
+        
+        if (!rating) {
+            e.preventDefault();
+            alert('Please select a rating for the movie.');
+            return;
+        }
+    });
 });
 </script>
 {% endblock %}

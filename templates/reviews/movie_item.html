@@ -1,0 +1,159 @@
+{% load static %}
+
+<div class="movie-item" data-movie-id="{{ movie.id }}">
+    <div class="movie-poster">
+        {% if movie.poster_url %}
+            <img src="{{ movie.poster_url }}" alt="{{ movie.title }} poster" class="poster-image">
+        {% else %}
+            <div class="poster-placeholder">
+                <span class="poster-icon">🎬</span>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="movie-details">
+        <h3 class="movie-title">{{ movie.title }}</h3>
+        {% if movie.year %}
+            <p class="movie-year">({{ movie.year }})</p>
+        {% endif %}
+        {% if movie.genre %}
+            <span class="movie-genre">{{ movie.genre.name }}</span>
+        {% endif %}
+        {% if movie.synopsis %}
+            <p class="movie-synopsis">{{ movie.synopsis|truncatewords:20 }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="movie-actions">
+        <button type="button" class="btn-select-movie" onclick="selectMovie({{ movie.id }}, '{{ movie.title|escapejs }}')">
+            Select Movie
+        </button>
+    </div>
+</div>
+
+<style>
+    .movie-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        background: white;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-bottom: 1rem;
+    }
+
+    .movie-item:hover {
+        border-color: var(--accent-color);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .movie-item.selected {
+        border-color: var(--accent-color);
+        background: rgba(45, 231, 135, 0.05);
+    }
+
+    .movie-poster {
+        flex: 0 0 80px;
+    }
+
+    .poster-image {
+        width: 80px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .poster-placeholder {
+        width: 80px;
+        height: 120px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+    }
+
+    .poster-icon {
+        font-size: 2rem;
+    }
+
+    .movie-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .movie-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+
+    .movie-year {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .movie-genre {
+        background: var(--accent-color);
+        color: var(--text-light);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .movie-synopsis {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    .movie-actions {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-select-movie {
+        background: var(--accent-color);
+        color: var(--text-light);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-select-movie:hover {
+        background: #25c770;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .movie-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .movie-poster {
+            flex: none;
+            align-self: center;
+        }
+
+        .movie-actions {
+            justify-content: center;
+        }
+    }
+</style>
