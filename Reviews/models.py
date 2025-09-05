@@ -7,7 +7,7 @@ User = get_user_model()
 # Create your models here.
 
 class Genre(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=15, unique=True)
 
     class Meta:
         verbose_name = "Genre"
@@ -18,7 +18,7 @@ class Genre(models.Model):
         return self.name
 
 class Movie(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=30)
     year = models.PositiveIntegerField(null=True, blank=True)
     imdb_id = models.CharField(max_length=20, blank=True, null=True, unique=True)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True, related_name="movies")
